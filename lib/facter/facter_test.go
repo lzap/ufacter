@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zstyblik/go-facter/lib/formatter"
+	"github.com/lzap/ufacter/lib/formatter"
 )
 
 func TestFacter(t *testing.T) {

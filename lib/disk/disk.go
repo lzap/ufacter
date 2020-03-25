@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/lzap/ufacter/lib/common"
 	d "github.com/shirou/gopsutil/disk"
-	"github.com/zstyblik/go-facter/lib/common"
 )
 
 var (

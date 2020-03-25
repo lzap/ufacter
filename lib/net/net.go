@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/lzap/ufacter/lib/common"
 	n "github.com/shirou/gopsutil/net"
-	"github.com/zstyblik/go-facter/lib/common"
 )
 
 var (

@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 
-	"github.com/zstyblik/go-facter/lib/cpu"
-	"github.com/zstyblik/go-facter/lib/disk"
-	"github.com/zstyblik/go-facter/lib/facter"
-	"github.com/zstyblik/go-facter/lib/formatter"
-	"github.com/zstyblik/go-facter/lib/host"
-	"github.com/zstyblik/go-facter/lib/link"
-	"github.com/zstyblik/go-facter/lib/mem"
-	"github.com/zstyblik/go-facter/lib/net"
+	"github.com/lzap/ufacter/lib/cpu"
+	"github.com/lzap/ufacter/lib/disk"
+	"github.com/lzap/ufacter/lib/facter"
+	"github.com/lzap/ufacter/lib/formatter"
+	"github.com/lzap/ufacter/lib/host"
+	"github.com/lzap/ufacter/lib/link"
+	"github.com/lzap/ufacter/lib/mem"
+	"github.com/lzap/ufacter/lib/net"
 )
 
 func main() {

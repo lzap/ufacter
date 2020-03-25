@@ -1,12 +1,24 @@
-# go-facter
+# ufacter (micro facter)
 
-go-facter is a loose implementation of Puppet Labs [facter] in golang. The main target are platforms where there isn't possible or feasible to install Ruby, eg. [CoreOS]. Also, you can run it in Docker Container and still get data from the Host itself.
+A loose implementation of Puppet Labs facter in golang. The main target are platforms where there isn't possible or feasible to install Ruby. Only very basic set of facts are implemented plus few more:
 
-In theory, go-facter can be used as a library of sort to build custom facts.
+* cpu
+* memory
+* network (link layer - this is not provided by the original facter)
+* network (IPv4 and IPv6)
 
-## Licence
+## Requirements
 
- BSD 3-Clause ("BSD New" or "BSD Simplified") licence.
+- go v1.5 or newer is required
+
+## Build and use
+
+```
+go get github.com/lzap/ufacter
+cd ~/go/src/github.com/lzap/ufacter
+go build ./cmd/ufacter
+./ufacter -help
+```
 
 ## Environment variables
 
@@ -14,17 +26,19 @@ In theory, go-facter can be used as a library of sort to build custom facts.
 * `HOST_PROC` - specify alternative path to `/proc` mountpoint
 * `HOST_SYS` - specify alternative path to `/sys` mountpoint
 
-## Requirements
+## Original work
 
-- go v1.5 or newer is required
+Based on original work published at https://github.com/lzap/ufacter
 
-## Build
+## Licence
 
-```
-go get github.com/zstyblik/go-facter/...
-cd ~/go/src/github.com/zstyblik/go-facter
-go build ./cmd/facter
-```
+BSD 3-Clause ("BSD New" or "BSD Simplified") licence.
 
-[facter]: <https://github.com/puppetlabs/facter>
-[CoreOS]: <https://coreos.com/>
+## TODO
+
+- tree without dots (e.g. link.virbt-ntln.98.vlanprotocol)
+- JSON output
+- stable only (constant of fact type or Add method)
+- maximum subtree
+- calculate facts via goroutines
+

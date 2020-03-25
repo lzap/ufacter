@@ -1,7 +1,7 @@
 package facter
 
 import (
-	"github.com/zstyblik/go-facter/lib/formatter"
+	"github.com/lzap/ufacter/lib/formatter"
 )
 
 // Facter struct holds Facter-related attributes

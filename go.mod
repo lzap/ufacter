@@ -1,4 +1,4 @@
-module github.com/zstyblik/go-facter
+module github.com/lzap/ufacter
 
 go 1.13
 
@@ -9,4 +9,5 @@ require (
 	github.com/shirou/w32 v0.0.0-20160204003529-3c9377fc6748 // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/vishvananda/netlink v1.1.0
+	github.com/zstyblik/go-facter v0.0.0-20170415102809-3f25ee84f161
 )

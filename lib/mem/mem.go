@@ -3,8 +3,8 @@ package mem
 import (
 	"fmt"
 
+	"github.com/lzap/ufacter/lib/common"
 	m "github.com/shirou/gopsutil/mem"
-	"github.com/zstyblik/go-facter/lib/common"
 )
 
 // Facter interface
