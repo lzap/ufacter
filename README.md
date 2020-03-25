@@ -14,7 +14,7 @@ A loose implementation of Puppet Labs facter in golang. The main target are plat
 ## Build and use
 
 ```
-go get github.com/lzap/ufacter
+go get -v github.com/lzap/ufacter/cmd/ufacter
 cd ~/go/src/github.com/lzap/ufacter
 go build ./cmd/ufacter
 ./ufacter -help
@@ -28,7 +28,7 @@ go build ./cmd/ufacter
 
 ## Original work
 
-Based on original work published at https://github.com/lzap/ufacter
+Based on original work published at https://github.com/zstyblik/go-facter
 
 ## Licence
 
