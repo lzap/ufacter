@@ -16,14 +16,24 @@ func TestFacter(t *testing.T) {
 		t.Fail()
 	}
 	f.Add(testKey, testValue)
-	value, ok := f.Get(testKey)
-	if ok == false || strings.Compare(fmt.Sprintf("%v", value), testValue) != 0 {
-		t.Fatalf("Failed to get K/V: %v:%v:%v", testKey, value, ok)
+	value, err := f.Get(testKey)
+	if err != nil || strings.Compare(fmt.Sprintf("%v", value), testValue) != 0 {
+		t.Fatalf("Failed to get K/V: %v:%v:%v", testKey, value, err)
 	}
-	f.Delete(testKey)
-	value, ok = f.Get(testKey)
-	if ok != false {
-		t.Fatalf("Got %v, value %v", ok, value)
+}
+
+func TestStructuredFacter(t *testing.T) {
+	testKey := "node.leaf"
+	testValue := "value"
+	f := New(nil)
+	if f == nil {
+		t.Fail()
+	}
+	f.AddNode("node")
+	f.Add(testKey, testValue)
+	value, err := f.Get(testKey)
+	if err != nil || strings.Compare(fmt.Sprintf("%v", value), testValue) != 0 {
+		t.Fatalf("Failed to get K/V: %v:%v:%v", testKey, value, err)
 	}
 }
 

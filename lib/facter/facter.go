@@ -1,6 +1,7 @@
 package facter
 
 import (
+	dot "github.com/joeycumines/go-dotnotation/dotnotation"
 	"github.com/lzap/ufacter/lib/formatter"
 )
 
@@ -37,20 +38,21 @@ func New(userConf *Config) *Facter {
 	return f
 }
 
-// Add adds a fact
+// Add a fact
 func (f *Facter) Add(k string, v interface{}) {
-	f.facts[k] = v
+	dot.Set(f.facts, k, v)
 }
 
-// Delete deletes given fact
-func (f *Facter) Delete(k string) {
-	delete(f.facts, k)
+// Add a fact
+func (f *Facter) AddNode(k string) {
+	dot.Set(f.facts, k, make(map[string]interface{}))
 }
 
 // Get returns value of given fact, if it exists
-func (f *Facter) Get(k string) (interface{}, bool) {
-	value, ok := f.facts[k]
-	return value, ok
+func (f *Facter) Get(k string) (interface{}, error) {
+	value, err := dot.Get(f.facts, k)
+	//value, ok := f.facts[k]
+	return value, err
 }
 
 // Print prints-out facts by calling formatter

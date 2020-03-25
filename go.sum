@@ -4,6 +4,10 @@ github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-ole/go-ole v1.2.1-0.20160311030626-572eabb84c42 h1:OuvTaLJ4l+6KSaPc4QPzIS7JCgeBWEOUYFOCGaOBei0=
 github.com/go-ole/go-ole v1.2.1-0.20160311030626-572eabb84c42/go.mod h1:7FAglXiTm7HKlQRDeOQ6ZNUHidzCWXuZWq/1dTyBNF8=
+github.com/go-test/deep v1.0.5 h1:AKODKU3pDH1RzZzm6YZu77YWtEAq6uh1rLIAQlay2qc=
+github.com/go-test/deep v1.0.5/go.mod h1:QV8Hv/iy04NyLBxAdO9njL0iVPN1S4d/A3NVv1V36o8=
+github.com/joeycumines/go-dotnotation v0.0.0-20180131115956-2d3612e36c5d h1:ljoJyU5NEhe3LWXrRSHnYqWtQehQSJ+9d9tfIGNbpSw=
+github.com/joeycumines/go-dotnotation v0.0.0-20180131115956-2d3612e36c5d/go.mod h1:siHz7M0dAufA9aNRidkfckDSVB/S+Ld7allyOe5uxVg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/shirou/gopsutil v2.0.1-0.20160614092826-22a03b5be3f3+incompatible h1:IWd7gvZ/boLBFxyAEix6pdZVfgeYkCDvhxMkgHqXdD8=
