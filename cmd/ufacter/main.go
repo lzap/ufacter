@@ -2,43 +2,74 @@ package main
 
 import (
 	"flag"
+	"strings"
 
-	"github.com/lzap/ufacter/lib/cpu"
-	"github.com/lzap/ufacter/lib/disk"
-	"github.com/lzap/ufacter/lib/facter"
-	"github.com/lzap/ufacter/lib/formatter"
-	"github.com/lzap/ufacter/lib/host"
-	"github.com/lzap/ufacter/lib/link"
-	"github.com/lzap/ufacter/lib/mem"
-	"github.com/lzap/ufacter/lib/net"
+	"github.com/lzap/ufacter/facts/cpu"
+	"github.com/lzap/ufacter/facts/disk"
+	"github.com/lzap/ufacter/facts/host"
+	"github.com/lzap/ufacter/facts/link"
+	"github.com/lzap/ufacter/facts/mem"
+	"github.com/lzap/ufacter/facts/net"
+	"github.com/lzap/ufacter/facts/route"
+	"github.com/lzap/ufacter/lib/ufacter"
 )
 
 func main() {
-	conf := facter.Config{}
-	ptFormat := flag.Bool("plaintext", false,
-		"Emit facts as key => value pairs")
-	kvFormat := flag.Bool("keyvalue", false,
-		"Emit facts as key:value pairs")
-	jsonFormat := flag.Bool("json", false,
-		"Emit facts as a JSON")
+	conf := ufacter.Config{}
+	modules := flag.String("modules", "cpu,mem,host,disk,net,route,link", "Modules to run")
+	yamlFormat := flag.Bool("yaml", false, "Print facts in YAML format")
+	jsonFormat := flag.Bool("json", false, "Print facts in JSON format")
 	flag.Parse()
 
-	if *ptFormat == true {
-		conf.Formatter = formatter.NewFormatter()
-	} else if *kvFormat == true {
-		conf.Formatter = formatter.NewKeyValueFormatter()
+	if *yamlFormat == true {
+		conf.Formatter = ufacter.NewYAMLFormatter()
 	} else if *jsonFormat == true {
-		conf.Formatter = formatter.NewJSONFormatter()
+		conf.Formatter = ufacter.NewJSONFormatter()
 	} else {
-		conf.Formatter = formatter.NewFormatter()
+		// YAML is the default output in ufacter
+		conf.Formatter = ufacter.NewYAMLFormatter()
 	}
 
-	facter := facter.New(&conf)
-	_ = cpu.GetCPUFacts(facter)
-	_ = disk.GetDiskFacts(facter)
-	_ = host.GetHostFacts(facter)
-	_ = mem.GetMemoryFacts(facter)
-	_ = net.GetNetFacts(facter)
-	_ = link.GetLinkFacts(facter)
-	facter.Print()
+	// channel buffer hasn't measurable effect only for light formatters
+	factsCh := make(chan ufacter.Fact, 1024)
+
+	// slice of reporters (put your new reporter HERE)
+	var reporters []func(facts chan<- ufacter.Fact) error
+	for _, mod := range strings.Split(*modules, ",") {
+		switch mod {
+		case "cpu":
+			reporters = append(reporters, cpu.ReportFacts)
+		case "mem":
+			reporters = append(reporters, mem.ReportFacts)
+		case "link":
+			reporters = append(reporters, link.ReportFacts)
+		case "route":
+			reporters = append(reporters, route.ReportFacts)
+		case "host":
+			reporters = append(reporters, host.ReportFacts)
+		case "net":
+			reporters = append(reporters, net.ReportFacts)
+		case "disk":
+			reporters = append(reporters, disk.ReportFacts)
+		}
+	}
+	toClose := len(reporters)
+
+	// start all reporters
+	for _, r := range reporters {
+		go r(factsCh)
+	}
+
+	// collect and wait for facts
+	for f := range factsCh {
+		if f.Name == nil {
+			toClose--
+		} else {
+			conf.Formatter.Add(f)
+		}
+		if toClose <= 0 {
+			break
+		}
+	}
+	conf.Formatter.Finish()
 }

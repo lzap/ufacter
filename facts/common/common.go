@@ -4,18 +4,25 @@ import (
 	"fmt"
 	"math"
 	"os"
+
+	"github.com/lzap/ufacter/lib/ufacter"
 )
 
 var (
 	// ByteUnits is a k=>v map of units for conversion
 	ByteUnits = map[int]string{
-		0: "B",
+		0: "bytes",
 		1: "kB",
-		2: "MB",
-		3: "GB",
-		4: "TB",
+		2: "MiB",
+		3: "GiB",
+		4: "TiB",
 	}
 )
+
+// LogError writes error into syslog (or logfile) and also into fact "ufacter.errors"
+func LogError(facts chan<- ufacter.Fact, action string, err error) {
+	facts <- ufacter.NewStableFact(err, "ufacter", "errors", action)
+}
 
 // ConvertBytes converts bytes to the highest possible unit
 func ConvertBytes(in uint64) (float64, string, error) {

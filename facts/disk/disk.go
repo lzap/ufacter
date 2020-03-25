@@ -9,18 +9,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lzap/ufacter/lib/common"
+	"github.com/lzap/ufacter/facts/common"
+	"github.com/lzap/ufacter/lib/ufacter"
 	d "github.com/shirou/gopsutil/disk"
 )
 
 var (
 	reDevBlacklist = regexp.MustCompile("^(dm-[0-9]+|loop[0-9]+)$")
 )
-
-// Facter interface
-type Facter interface {
-	Add(string, interface{})
-}
 
 // getBlockDevices returns list of block devices
 func getBlockDevices(all bool) ([]string, error) {
@@ -50,7 +46,9 @@ func getBlockDeviceModel(blockDevice string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s", bytes.TrimSuffix(model, []byte("\n"))), nil
+	model = bytes.TrimSuffix(model, []byte("\n"))
+	model = bytes.TrimSpace(model)
+	return fmt.Sprintf("%s", model), nil
 }
 
 // getBlockDeviceSize returns size of block device as reported by Linux kernel
@@ -84,25 +82,35 @@ func getBlockDeviceVendor(blockDevice string) (string, error) {
 	return fmt.Sprintf("%s", vendor), nil
 }
 
-// GetDiskFacts gathers facts related to HDDs
-func GetDiskFacts(f Facter) error {
+func reportHumanReadable(facts chan<- ufacter.Fact, volatile bool, value uint64, mountpoint string, raw_key string, human_key string) error {
+	human, unit, err := common.ConvertBytes(value)
+	if err != nil {
+		return err
+	}
+	facts <- ufacter.NewFact(value, false, "mountpoints", mountpoint, raw_key)
+	facts <- ufacter.NewFact(fmt.Sprintf("%.2f %v", human, unit), false, "mountpoints", mountpoint, human_key)
+	return nil
+}
+
+// ReportFacts returns related to HDDs
+func ReportFacts(facts chan<- ufacter.Fact) error {
 	partitions, err := d.Partitions(false)
 	if err != nil {
 		return err
 	}
 
-	// TODO - probably read from /proc/filesystems
-	fstypes := make(map[string]struct{})
-	for _, v := range partitions {
-		fstypes[v.Fstype] = struct{}{}
-	}
-	fstypesStr := []string{}
-	for k := range fstypes {
-		fstypesStr = append(fstypesStr, k)
-	}
-	if len(fstypesStr) > 0 {
-		sort.Strings(fstypesStr)
-		f.Add("filesystems", strings.Join(fstypesStr, ","))
+	for _, part := range partitions {
+		usage, err := d.Usage(part.Mountpoint)
+		if err != nil {
+			return err
+		}
+		facts <- ufacter.NewStableFact(part.Device, "mountpoints", part.Mountpoint, "device")
+		facts <- ufacter.NewStableFact(part.Fstype, "mountpoints", part.Mountpoint, "filesystem")
+		facts <- ufacter.NewStableFact(strings.Split(part.Opts, ","), "mountpoints", part.Mountpoint, "options")
+		facts <- ufacter.NewVolatileFact(fmt.Sprintf("%.2f%%", usage.UsedPercent), "mountpoints", part.Mountpoint, "capacity")
+		reportHumanReadable(facts, false, usage.Total, part.Mountpoint, "size_bytes", "size")
+		reportHumanReadable(facts, true, usage.Free, part.Mountpoint, "available_bytes", "available")
+		reportHumanReadable(facts, true, usage.Used, part.Mountpoint, "used_bytes", "used")
 	}
 
 	blockDevs, err := getBlockDevices(false)
@@ -111,23 +119,23 @@ func GetDiskFacts(f Facter) error {
 	}
 
 	sort.Strings(blockDevs)
-	f.Add("blockdevices", strings.Join(blockDevs, ","))
 	for _, blockDevice := range blockDevs {
 		size, err := getBlockDeviceSize(blockDevice)
 		if err == nil {
-			f.Add(fmt.Sprintf("blockdevice_%s_size", blockDevice), size)
+			reportHumanReadable(facts, false, uint64(size), blockDevice, "size_bytes", "size")
 		}
 
 		model, err := getBlockDeviceModel(blockDevice)
 		if err == nil {
-			f.Add(fmt.Sprintf("blockdevice_%s_model", blockDevice), model)
+			facts <- ufacter.NewStableFact(model, "disks", blockDevice, "model")
 		}
 
 		vendor, err := getBlockDeviceVendor(blockDevice)
 		if err == nil {
-			f.Add(fmt.Sprintf("blockdevice_%s_vendor", blockDevice), vendor)
+			facts <- ufacter.NewStableFact(vendor, "disks", blockDevice, "vendor")
 		}
 	}
 
+	facts <- ufacter.NewLastFact()
 	return nil
 }
