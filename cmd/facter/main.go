@@ -8,6 +8,7 @@ import (
 	"github.com/zstyblik/go-facter/lib/facter"
 	"github.com/zstyblik/go-facter/lib/formatter"
 	"github.com/zstyblik/go-facter/lib/host"
+	"github.com/zstyblik/go-facter/lib/link"
 	"github.com/zstyblik/go-facter/lib/mem"
 	"github.com/zstyblik/go-facter/lib/net"
 )
@@ -38,5 +39,6 @@ func main() {
 	_ = host.GetHostFacts(facter)
 	_ = mem.GetMemoryFacts(facter)
 	_ = net.GetNetFacts(facter)
+	_ = link.GetLinkFacts(facter)
 	facter.Print()
 }
