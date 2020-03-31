@@ -20,8 +20,8 @@ var (
 )
 
 // LogError writes error into syslog (or logfile) and also into fact "ufacter.errors"
-func LogError(facts chan<- ufacter.Fact, action string, err error) {
-	facts <- ufacter.NewStableFact(err, "ufacter", "errors", action)
+func LogError(facts chan<- ufacter.Fact, err error, keys ...string) {
+	facts <- ufacter.NewStableFact(err, append([]string{"ufacter", "errors"}, keys...)...)
 }
 
 // ConvertBytes converts bytes to the highest possible unit

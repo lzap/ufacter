@@ -20,7 +20,7 @@ func idToName(id int) string {
 }
 
 // ReportFacts adds link information
-func ReportFacts(facts chan<- ufacter.Fact) error {
+func ReportFacts(facts chan<- ufacter.Fact) {
 	links, err := n.LinkList()
 	if err == nil {
 		for _, link := range links {
@@ -59,9 +59,8 @@ func ReportFacts(facts chan<- ufacter.Fact) error {
 			}
 		}
 	} else {
-		c.LogError(facts, "link: getting list", err)
+		c.LogError(facts, err, "link", "getting list")
 	}
 
 	facts <- ufacter.NewLastFact()
-	return nil
 }

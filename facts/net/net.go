@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	c "github.com/lzap/ufacter/facts/common"
 	"github.com/lzap/ufacter/lib/ufacter"
 	n "github.com/shirou/gopsutil/net"
 )
@@ -16,11 +17,12 @@ var (
 
 type stringMap map[string]string
 
-// Gathers network related facts
-func ReportFacts(facts chan<- ufacter.Fact) error {
+// ReportFacts gathers network related facts
+func ReportFacts(facts chan<- ufacter.Fact) {
 	netIfaces, err := n.Interfaces()
 	if err != nil {
-		return err
+		c.LogError(facts, err, "net", "interfaces")
+		return
 	}
 
 	var ifaces []string
@@ -37,7 +39,8 @@ func ReportFacts(facts chan<- ufacter.Fact) error {
 		for _, ipAddr := range v.Addrs {
 			parsed_ip, parsed_net, err := net.ParseCIDR(ipAddr.Addr)
 			if err != nil {
-				return err
+				c.LogError(facts, err, "net", "parse CIDR")
+				continue
 			}
 			b := make(stringMap)
 			b["cidr"] = ipAddr.Addr
@@ -78,5 +81,4 @@ func ReportFacts(facts chan<- ufacter.Fact) error {
 	}
 
 	facts <- ufacter.NewLastFact()
-	return nil
 }

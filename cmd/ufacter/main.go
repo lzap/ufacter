@@ -11,12 +11,13 @@ import (
 	"github.com/lzap/ufacter/facts/mem"
 	"github.com/lzap/ufacter/facts/net"
 	"github.com/lzap/ufacter/facts/route"
+	fufacter "github.com/lzap/ufacter/facts/ufacter"
 	"github.com/lzap/ufacter/lib/ufacter"
 )
 
 func main() {
 	conf := ufacter.Config{}
-	modules := flag.String("modules", "cpu,mem,host,disk,net,route,link", "Modules to run")
+	modules := flag.String("modules", "cpu,mem,host,disk,net,route,link,ufacter", "Modules to run")
 	yamlFormat := flag.Bool("yaml", false, "Print facts in YAML format")
 	jsonFormat := flag.Bool("json", false, "Print facts in JSON format")
 	flag.Parse()
@@ -34,7 +35,7 @@ func main() {
 	factsCh := make(chan ufacter.Fact, 1024)
 
 	// slice of reporters (put your new reporter HERE)
-	var reporters []func(facts chan<- ufacter.Fact) error
+	var reporters []func(facts chan<- ufacter.Fact)
 	for _, mod := range strings.Split(*modules, ",") {
 		switch mod {
 		case "cpu":
@@ -51,25 +52,31 @@ func main() {
 			reporters = append(reporters, net.ReportFacts)
 		case "disk":
 			reporters = append(reporters, disk.ReportFacts)
+		case "ufacter":
+			reporters = append(reporters, fufacter.ReportFacts)
 		}
 	}
 	toClose := len(reporters)
 
-	// start all reporters
-	for _, r := range reporters {
-		go r(factsCh)
-	}
+	if toClose > 0 {
+		// start all reporters
+		for _, r := range reporters {
+			go r(factsCh)
+		}
 
-	// collect and wait for facts
-	for f := range factsCh {
-		if f.Name == nil {
-			toClose--
-		} else {
-			conf.Formatter.Add(f)
+		// collect and wait for facts
+		for f := range factsCh {
+			if f.Name == nil {
+				toClose--
+			} else {
+				if f.Value != nil && f.Value != "" {
+					conf.Formatter.Add(f)
+				}
+			}
+			if toClose <= 0 {
+				break
+			}
 		}
-		if toClose <= 0 {
-			break
-		}
+		conf.Formatter.Finish()
 	}
-	conf.Formatter.Finish()
 }

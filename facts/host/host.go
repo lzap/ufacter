@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	c "github.com/lzap/ufacter/facts/common"
 	"github.com/lzap/ufacter/lib/ufacter"
 	h "github.com/shirou/gopsutil/host"
 )
@@ -34,11 +35,21 @@ func int8ToString(bs [65]int8) string {
 	return strings.TrimRight(string(b), "\x00")
 }
 
-// GetHostFacts gathers facts related to Host
-func ReportFacts(facts chan<- ufacter.Fact) error {
+// ReportFacts gathers facts related to host information
+func ReportFacts(facts chan<- ufacter.Fact) {
+	envPath := os.Getenv("PATH")
+	if envPath != "" {
+		facts <- ufacter.NewStableFact(envPath, "path")
+	}
+
+	tz, _ := time.Now().Zone()
+	facts <- ufacter.NewStableFact(tz, "timezone")
+
 	hostInfo, err := h.Info()
 	if err != nil {
-		return err
+		c.LogError(facts, err, "host", "info")
+		facts <- ufacter.NewLastFact()
+		return
 	}
 
 	facts <- ufacter.NewStableFact(hostInfo.Hostname, "networking", "fqdn")
@@ -75,6 +86,8 @@ func ReportFacts(facts chan<- ufacter.Fact) error {
 		facts <- ufacter.NewStableFact(kernelRelease, "kernelrelease")
 		facts <- ufacter.NewStableFact(kernelVersion, "kernelversion")
 		facts <- ufacter.NewStableFact(strings.Join(kvSplitted[0:2], "."), "kernelmajversion")
+	} else {
+		c.LogError(facts, err, "host", "uname")
 	}
 
 	facts <- ufacter.NewStableFact(hostInfo.KernelArch, "os", "architecture")
@@ -100,14 +113,5 @@ func ReportFacts(facts chan<- ufacter.Fact) error {
 	facts <- ufacter.NewVolatileFact(fmt.Sprintf("%d days", hostInfo.Uptime/60/60/24), "system_uptime", "uptime")
 	facts <- ufacter.NewStableFactEx(hostInfo.BootTime, "system_uptime", "boot_time")
 
-	envPath := os.Getenv("PATH")
-	if envPath != "" {
-		facts <- ufacter.NewStableFact(envPath, "path")
-	}
-
-	tz, _ := time.Now().Zone()
-	facts <- ufacter.NewStableFact(tz, "timezone")
-
 	facts <- ufacter.NewLastFact()
-	return nil
 }
