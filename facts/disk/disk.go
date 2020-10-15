@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	c "github.com/lzap/ufacter/facts/common"
 	"github.com/lzap/ufacter/lib/ufacter"
@@ -104,6 +105,9 @@ func reportHumanReadable(facts chan<- ufacter.Fact, volatile bool, value uint64,
 
 // ReportFacts returns related to HDDs
 func ReportFacts(facts chan<- ufacter.Fact) {
+	start := time.Now()
+	defer ufacter.SendLastFact(facts)
+
 	partitions, err := d.Partitions(false)
 	if err == nil {
 		for _, part := range partitions {
@@ -153,5 +157,5 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 		c.LogError(facts, err, "disk", "partitions")
 	}
 
-	facts <- ufacter.NewLastFact()
+	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "disk")
 }

@@ -1,6 +1,8 @@
 package link
 
 import (
+	"time"
+
 	c "github.com/lzap/ufacter/facts/common"
 	"github.com/lzap/ufacter/lib/ufacter"
 	n "github.com/vishvananda/netlink"
@@ -21,6 +23,9 @@ func idToName(id int) string {
 
 // ReportFacts adds link information
 func ReportFacts(facts chan<- ufacter.Fact) {
+	start := time.Now()
+	defer ufacter.SendLastFact(facts)
+
 	links, err := n.LinkList()
 	if err == nil {
 		for _, link := range links {
@@ -62,5 +67,5 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 		c.LogError(facts, err, "link", "getting list")
 	}
 
-	facts <- ufacter.NewLastFact()
+	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "link")
 }

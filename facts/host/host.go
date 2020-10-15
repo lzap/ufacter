@@ -37,6 +37,9 @@ func int8ToString(bs [65]int8) string {
 
 // ReportFacts gathers facts related to host information
 func ReportFacts(facts chan<- ufacter.Fact) {
+	start := time.Now()
+	defer ufacter.SendLastFact(facts)
+
 	envPath := os.Getenv("PATH")
 	if envPath != "" {
 		facts <- ufacter.NewStableFact(envPath, "path")
@@ -113,5 +116,5 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 	facts <- ufacter.NewVolatileFact(fmt.Sprintf("%d days", hostInfo.Uptime/60/60/24), "system_uptime", "uptime")
 	facts <- ufacter.NewStableFactEx(hostInfo.BootTime, "system_uptime", "boot_time")
 
-	facts <- ufacter.NewLastFact()
+	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "host")
 }

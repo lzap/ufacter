@@ -5,6 +5,7 @@ import (
 	"net"
 	"regexp"
 	"strings"
+	"time"
 
 	c "github.com/lzap/ufacter/facts/common"
 	"github.com/lzap/ufacter/lib/ufacter"
@@ -19,6 +20,9 @@ type stringMap map[string]string
 
 // ReportFacts gathers network related facts
 func ReportFacts(facts chan<- ufacter.Fact) {
+	start := time.Now()
+	defer ufacter.SendLastFact(facts)
+
 	netIfaces, err := n.Interfaces()
 	if err != nil {
 		c.LogError(facts, err, "net", "interfaces")
@@ -80,5 +84,5 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 		}
 	}
 
-	facts <- ufacter.NewLastFact()
+	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "net")
 }

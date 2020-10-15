@@ -2,6 +2,7 @@ package mem
 
 import (
 	"fmt"
+	"time"
 
 	c "github.com/lzap/ufacter/facts/common"
 	"github.com/lzap/ufacter/lib/ufacter"
@@ -20,6 +21,9 @@ func reportMemory(facts chan<- ufacter.Fact, volatile bool, value uint64, rootKe
 
 // ReportFacts gathers facts related to memory
 func ReportFacts(facts chan<- ufacter.Fact) {
+	start := time.Now()
+	defer ufacter.SendLastFact(facts)
+
 	hostVM, err := m.VirtualMemory()
 	if err == nil {
 		reportMemory(facts, false, hostVM.Total, "system", "total_bytes", "total")
@@ -39,5 +43,5 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 		reportMemory(facts, true, hostSwap.Free, "swap", "available_bytes", "available")
 	}
 
-	facts <- ufacter.NewLastFact()
+	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "mem")
 }

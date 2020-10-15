@@ -2,6 +2,7 @@ package route
 
 import (
 	"net"
+	"time"
 
 	c "github.com/lzap/ufacter/facts/common"
 	"github.com/lzap/ufacter/lib/ufacter"
@@ -10,6 +11,9 @@ import (
 
 // ReportFacts adds route information
 func ReportFacts(facts chan<- ufacter.Fact) {
+	start := time.Now()
+	defer ufacter.SendLastFact(facts)
+
 	var primaryIPv4Device string
 	var primaryIPv6Device string
 
@@ -43,5 +47,5 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 
 	// TODO: adding routing tables (would that be useful?)
 
-	facts <- ufacter.NewLastFact()
+	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "route")
 }
