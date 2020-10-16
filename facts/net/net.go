@@ -51,8 +51,7 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 			b["address"] = parsed_ip.String()
 			b["network"] = parsed_net.IP.String()
 			var maskBuilder strings.Builder
-			// TODO https://github.com/golang/go/issues/38097
-			if !strings.ContainsRune(ipAddr.Addr, ':') {
+			if ip4 := parsed_ip.To4(); ip4 != nil {
 				// IPv4
 				maskBuilder.Grow(16)
 				for i, b := range parsed_net.Mask {

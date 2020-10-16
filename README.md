@@ -248,8 +248,11 @@ Planned facts:
 * Processor "total speed": `processors.speed`.
 * Some names (e.g. OS distribution names) are be reported differently (see https://github.com/shirou/gopsutil/blob/master/host/host_linux.go).
 * Operating system major, minor and LSB info (full name, description) are missing.
+* Fact caching (`-check-new-facts` option returns 1 if there are modified/new facts) for cronjobs to only send updates when necessary
 * Some units contain decimal part ("123.00 bytes" instead of "123 bytes").
+* Output in shell mode (`FACT_NAME="fact value"`).
 * FIPS and SELinux modes.
+* Report EFI or BIOS mode (https://github.com/jcpunk/puppet-efi/blob/master/lib/facter/efi.rb)
 
 Planned features:
 
