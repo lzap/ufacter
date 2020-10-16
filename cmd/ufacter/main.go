@@ -23,6 +23,8 @@ func main() {
 	modules := flag.String("modules", "cpu,mem,host,disk,net,route,link,ufacter", "Modules to run")
 	yamlFormat := flag.Bool("yaml", false, "Print facts in YAML format")
 	jsonFormat := flag.Bool("json", false, "Print facts in JSON format")
+	noVolatile := flag.Bool("no-volatile", false, "Avoid facts that change often (e.g. free memory)")
+	noExtended := flag.Bool("no-extended", false, "Avoid facts not found in the original facter")
 	customFacts := flag.String("custom-facts", "", "Custom facts stored as YAML file")
 	flag.Parse()
 
@@ -58,7 +60,7 @@ func main() {
 	factsCh := make(chan ufacter.Fact, 1024)
 
 	// slice of reporters (put your new reporter HERE)
-	var reporters []func(facts chan<- ufacter.Fact)
+	var reporters []func(facts chan<- ufacter.Fact, volatile bool, extended bool)
 	for _, mod := range strings.Split(*modules, ",") {
 		switch mod {
 		case "cpu":
@@ -84,7 +86,7 @@ func main() {
 	if toClose > 0 {
 		// start all reporters
 		for _, r := range reporters {
-			go r(factsCh)
+			go r(factsCh, !*noVolatile, !*noExtended)
 		}
 
 		// collect and wait for facts
@@ -93,7 +95,11 @@ func main() {
 				toClose--
 			} else {
 				if f.Value != nil && f.Value != "" {
-					conf.Formatter.Add(f)
+					if (*noVolatile && f.Volatile) || (*noExtended && !f.Native) {
+						// skip
+					} else {
+						conf.Formatter.Add(f)
+					}
 				}
 			}
 			if toClose <= 0 {

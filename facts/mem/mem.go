@@ -20,7 +20,7 @@ func reportMemory(facts chan<- ufacter.Fact, volatile bool, value uint64, rootKe
 }
 
 // ReportFacts gathers facts related to memory
-func ReportFacts(facts chan<- ufacter.Fact) {
+func ReportFacts(facts chan<- ufacter.Fact, volatile bool, extended bool) {
 	start := time.Now()
 	defer ufacter.SendLastFact(facts)
 

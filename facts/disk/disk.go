@@ -104,7 +104,7 @@ func reportHumanReadable(facts chan<- ufacter.Fact, volatile bool, value uint64,
 }
 
 // ReportFacts returns related to HDDs
-func ReportFacts(facts chan<- ufacter.Fact) {
+func ReportFacts(facts chan<- ufacter.Fact, volatile bool, extended bool) {
 	start := time.Now()
 	defer ufacter.SendLastFact(facts)
 

@@ -19,7 +19,7 @@ var (
 type stringMap map[string]string
 
 // ReportFacts gathers network related facts
-func ReportFacts(facts chan<- ufacter.Fact) {
+func ReportFacts(facts chan<- ufacter.Fact, volatile bool, extended bool) {
 	start := time.Now()
 	defer ufacter.SendLastFact(facts)
 
@@ -47,7 +47,9 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 				continue
 			}
 			b := make(stringMap)
-			b["cidr"] = ipAddr.Addr
+			if extended {
+				b["cidr"] = ipAddr.Addr
+			}
 			b["address"] = parsed_ip.String()
 			b["network"] = parsed_net.IP.String()
 			var maskBuilder strings.Builder

@@ -10,7 +10,7 @@ import (
 )
 
 // ReportFacts adds route information
-func ReportFacts(facts chan<- ufacter.Fact) {
+func ReportFacts(facts chan<- ufacter.Fact, volatile bool, extended bool) {
 	start := time.Now()
 	defer ufacter.SendLastFact(facts)
 

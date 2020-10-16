@@ -36,7 +36,7 @@ func int8ToString(bs [65]int8) string {
 }
 
 // ReportFacts gathers facts related to host information
-func ReportFacts(facts chan<- ufacter.Fact) {
+func ReportFacts(facts chan<- ufacter.Fact, volatile bool, extended bool) {
 	start := time.Now()
 	defer ufacter.SendLastFact(facts)
 
@@ -108,10 +108,12 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 	}
 
 	facts <- ufacter.NewStableFactEx(hostInfo.BootTime, "system_uptime", "boot_time")
-	facts <- ufacter.NewVolatileFact(hostInfo.Uptime, "system_uptime", "seconds")
-	facts <- ufacter.NewVolatileFact(hostInfo.Uptime/60/60, "system_uptime", "hours")
-	facts <- ufacter.NewVolatileFact(hostInfo.Uptime/60/60/24, "system_uptime", "days")
-	facts <- ufacter.NewVolatileFact(fmt.Sprintf("%d minutes", hostInfo.Uptime/60), "system_uptime", "uptime")
+	if volatile {
+		facts <- ufacter.NewVolatileFact(hostInfo.Uptime, "system_uptime", "seconds")
+		facts <- ufacter.NewVolatileFact(hostInfo.Uptime/60/60, "system_uptime", "hours")
+		facts <- ufacter.NewVolatileFact(hostInfo.Uptime/60/60/24, "system_uptime", "days")
+		facts <- ufacter.NewVolatileFact(fmt.Sprintf("%d minutes", hostInfo.Uptime/60), "system_uptime", "uptime")
+	}
 
 	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "host")
 }
