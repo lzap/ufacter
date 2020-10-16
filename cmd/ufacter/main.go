@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/lzap/ufacter/facts/cpu"
@@ -13,6 +15,7 @@ import (
 	"github.com/lzap/ufacter/facts/route"
 	fufacter "github.com/lzap/ufacter/facts/ufacter"
 	"github.com/lzap/ufacter/lib/ufacter"
+	"gopkg.in/yaml.v2"
 )
 
 func main() {
@@ -20,6 +23,7 @@ func main() {
 	modules := flag.String("modules", "cpu,mem,host,disk,net,route,link,ufacter", "Modules to run")
 	yamlFormat := flag.Bool("yaml", false, "Print facts in YAML format")
 	jsonFormat := flag.Bool("json", false, "Print facts in JSON format")
+	customFacts := flag.String("custom-facts", "", "Custom facts stored as YAML file")
 	flag.Parse()
 
 	if *yamlFormat == true {
@@ -29,6 +33,25 @@ func main() {
 	} else {
 		// YAML is the default output in ufacter
 		conf.Formatter = ufacter.NewYAMLFormatter()
+	}
+
+	// load custom facts first
+	if _, err := os.Stat(*customFacts); err == nil {
+		yamlMap := make(map[string]interface{})
+
+		yamlString, err := ioutil.ReadFile(*customFacts)
+		if err != nil {
+			panic(err)
+		}
+
+		err = yaml.Unmarshal(yamlString, &yamlMap)
+		if err != nil {
+			panic(err)
+		}
+
+		for key, value := range yamlMap {
+			conf.Formatter.Add(ufacter.NewStableFact(value, key))
+		}
 	}
 
 	// channel buffer hasn't measurable effect only for light formatters

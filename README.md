@@ -250,8 +250,10 @@ Planned facts:
 * Operating system major, minor and LSB info (full name, description) are missing.
 * Fact caching (`-check-new-facts` option returns 1 if there are modified/new facts) for cronjobs to only send updates when necessary
 * Some units contain decimal part ("123.00 bytes" instead of "123 bytes").
-* Output in shell mode (`FACT_NAME="fact value"`).
+* Output in shell mode (`FACT_NAME="fact value"`) so shell-based TUI could take advantage of this.
+* Implement https://github.com/safchain/ethtool facts: link, speed, duplex, port, autoneg, wol (Linux only)
 * FIPS and SELinux modes.
+* IPMI facts from legacy discovery.
 * Report EFI or BIOS mode (https://github.com/jcpunk/puppet-efi/blob/master/lib/facter/efi.rb)
 
 Planned features:
