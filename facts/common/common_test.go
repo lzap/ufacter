@@ -31,12 +31,12 @@ func floatEquals(a, b float64) bool {
 
 func TestConvertBytes(t *testing.T) {
 	testpairs := []byteTPair{
-		{0, "", 0, "B"},
-		{5238784, "", 4.996094, "MB"},
-		{10485760, "", 10.000000, "MB"},
-		{100910080, "", 96.235352, "MB"},
-		{3267260416, "", 3.042873, "GB"},
-		{306816327680, "", 285.744972, "GB"},
+		{0, "", 0, "bytes"},
+		{5238784, "", 4.996094, "MiB"},
+		{10485760, "", 10.000000, "MiB"},
+		{100910080, "", 96.235352, "MiB"},
+		{3267260416, "", 3.042873, "GiB"},
+		{306816327680, "", 285.744972, "GiB"},
 	}
 	for _, pair := range testpairs {
 		out, outUnit, err := ConvertBytes(pair.in)
@@ -59,12 +59,12 @@ func TestConvertBytes(t *testing.T) {
 
 func TestConvertBytesTo(t *testing.T) {
 	testpairs := []byteTPair{
-		{0, "MB", 0, ""},
+		{0, "MiB", 0, ""},
 		{5238784, "kB", 5116, ""},
 		{10485760, "kB", 10240, ""},
-		{100910080, "MB", 96.235352, ""},
-		{3267260416, "MB", 3115.902344, ""},
-		{306816327680, "MB", 292602.851562, ""},
+		{100910080, "MiB", 96.235352, ""},
+		{3267260416, "MiB", 3115.902344, ""},
+		{306816327680, "MiB", 292602.851562, ""},
 	}
 	for _, pair := range testpairs {
 		out, outUnit, err := ConvertBytesTo(pair.in, pair.inUnit)

@@ -9,7 +9,7 @@ require (
 	github.com/shirou/w32 v0.0.0-20160204003529-3c9377fc6748 // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/vishvananda/netlink v1.1.0
-	github.com/zstyblik/go-facter v0.0.0-20170415102809-3f25ee84f161
+	github.com/zstyblik/go-facter v0.0.0-20170415102809-3f25ee84f161 // indirect
 	gopkg.in/yaml.v2 v2.2.2
-	honnef.co/go/tools v0.0.1-2020.1.3
+	honnef.co/go/tools v0.0.1-2020.1.3 // indirect
 )
