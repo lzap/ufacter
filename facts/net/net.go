@@ -60,7 +60,7 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 						maskBuilder.WriteString(".")
 					}
 				}
-				b["netmask"] = maskBuilder.String()
+				b["netmask"] = net.ParseIP(maskBuilder.String()).String()
 				bindings = append(bindings, b)
 			} else {
 				// IPv6
@@ -71,7 +71,7 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 						maskBuilder.WriteString(":")
 					}
 				}
-				b["netmask"] = maskBuilder.String()
+				b["netmask"] = net.ParseIP(maskBuilder.String()).String()
 				bindings6 = append(bindings6, b)
 			}
 			if len(bindings) > 0 {

@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"time"
@@ -25,10 +26,14 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 	CPUs, err := cpu.Info()
 	if err == nil {
 		physIDs := make(map[uint64]string)
+		maxSpeed := 0.0
 		for _, v := range CPUs {
 			physID, err := strconv.ParseUint(v.PhysicalID, 10, 32)
 			if err == nil {
 				physIDs[physID] = v.ModelName
+			}
+			if v.Mhz > maxSpeed {
+				maxSpeed = v.Mhz
 			}
 		}
 		models := []string{}
@@ -38,6 +43,8 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 		sort.Strings(models)
 		facts <- ufacter.NewStableFact(models, "processors", "models")
 		facts <- ufacter.NewStableFact(len(physIDs), "processors", "physicalcount")
+		// facter4 reports speed this as volatile fact but we don't
+		facts <- ufacter.NewStableFact(fmt.Sprintf("%.2f MHz", maxSpeed), "processors", "speed")
 	} else {
 		c.LogError(facts, err, "cpu", "info")
 	}

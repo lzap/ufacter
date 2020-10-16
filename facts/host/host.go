@@ -93,28 +93,25 @@ func ReportFacts(facts chan<- ufacter.Fact) {
 		c.LogError(facts, err, "host", "uname")
 	}
 
+	// report architecture into the processor tree as well
+	facts <- ufacter.NewStableFact(hostInfo.KernelArch, "processors", "isa")
+
 	facts <- ufacter.NewStableFact(hostInfo.KernelArch, "os", "architecture")
 	facts <- ufacter.NewStableFact(hostInfo.PlatformFamily, "os", "family")
 	facts <- ufacter.NewStableFact(hostInfo.KernelArch, "os", "hardware")
 	facts <- ufacter.NewStableFact(hostInfo.Platform, "os", "name")
 	facts <- ufacter.NewStableFact(hostInfo.PlatformVersion, "os", "release", "full")
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "release", "major")
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "release", "minor")
+	version := strings.SplitN(hostInfo.PlatformVersion, ".", 2)
+	facts <- ufacter.NewStableFact(version[0], "os", "release", "major")
+	if len(version) > 1 {
+		facts <- ufacter.NewStableFact(version[1], "os", "release", "minor")
+	}
 
-	// LSB parsing: https://github.com/shirou/gopsutil/blob/master/host/host_linux.go
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "distro", "codename")
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "distro", "description")
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "distro", "id")
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "distro", "specification")
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "distro", "release", "full")
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "distro", "release", "major")
-	//facts <- ufacter.NewStableFact(hostInfo.OS, "os", "distro", "release", "minor")
-
+	facts <- ufacter.NewStableFactEx(hostInfo.BootTime, "system_uptime", "boot_time")
 	facts <- ufacter.NewVolatileFact(hostInfo.Uptime, "system_uptime", "seconds")
 	facts <- ufacter.NewVolatileFact(hostInfo.Uptime/60/60, "system_uptime", "hours")
 	facts <- ufacter.NewVolatileFact(hostInfo.Uptime/60/60/24, "system_uptime", "days")
-	facts <- ufacter.NewVolatileFact(fmt.Sprintf("%d days", hostInfo.Uptime/60/60/24), "system_uptime", "uptime")
-	facts <- ufacter.NewStableFactEx(hostInfo.BootTime, "system_uptime", "boot_time")
+	facts <- ufacter.NewVolatileFact(fmt.Sprintf("%d minutes", hostInfo.Uptime/60), "system_uptime", "uptime")
 
 	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "host")
 }
