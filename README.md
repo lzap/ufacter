@@ -24,6 +24,7 @@ There are some facts missing at the moment which are made on purpose:
 
 * Fact tree `identity` (uid/gid etc).
 * Ruby version (not relevant).
+* Processor speed is reported correctly (maximum GHz) while Facter reports _current_ speed in `processors.speed`.
 
 ## Additional facts
 
@@ -241,11 +242,9 @@ BSD 3-Clause ("BSD New" or "BSD Simplified") licence.
 
 ## TODO
 
-Planned facts:
+Planned facts and features:
 
-* IPv6 primary interface will be reported too via `primary6` fact.
-* Primary interface facts (`ipaddress`, `network` and similar).
-* Processor "total speed": `processors.speed`.
+* Report "primary" network interface via https://github.com/jackpal/gateway (both IPv4 and IPv6 - /*roc/net/ipv6_route)
 * Some names (e.g. OS distribution names) are be reported differently (see https://github.com/shirou/gopsutil/blob/master/host/host_linux.go).
 * Operating system major, minor and LSB info (full name, description) are missing.
 * Fact caching (`-check-new-facts` option returns 1 if there are modified/new facts) for cronjobs to only send updates when necessary
@@ -255,13 +254,6 @@ Planned facts:
 * FIPS and SELinux modes.
 * IPMI facts from legacy discovery.
 * Report EFI or BIOS mode (https://github.com/jcpunk/puppet-efi/blob/master/lib/facter/efi.rb)
-* Routing table
-
-Planned features:
-
-- report netlink route tables: https://github.com/vishvananda/netlink/blob/master/route.go#L35
-- report "primary" network interface via https://github.com/jackpal/gateway (both IPv4 and IPv6 - /proc/net/ipv6_route)
-- stable only (constant of fact type or Add method)
-- maximum interfaces/mountpoints/devices limit option
-- better error handling
-- report facter and ufacter versions
+* Report netlink route tables: https://github.com/vishvananda/netlink/blob/master/route.go#L35
+* maximum interfaces/mountpoints/devices limit option
+* better error handling
