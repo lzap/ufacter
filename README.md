@@ -255,6 +255,7 @@ Planned facts:
 * FIPS and SELinux modes.
 * IPMI facts from legacy discovery.
 * Report EFI or BIOS mode (https://github.com/jcpunk/puppet-efi/blob/master/lib/facter/efi.rb)
+* Routing table
 
 Planned features:
 

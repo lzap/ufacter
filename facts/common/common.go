@@ -3,7 +3,9 @@ package common
 import (
 	"fmt"
 	"math"
+	"net"
 	"os"
+	"strings"
 
 	"github.com/lzap/ufacter/lib/ufacter"
 )
@@ -21,6 +23,7 @@ var (
 
 // LogError writes error into syslog (or logfile) and also into fact "ufacter.errors"
 func LogError(facts chan<- ufacter.Fact, err error, keys ...string) {
+	// TODO: journald or syslog
 	facts <- ufacter.NewStableFact(err, append([]string{"ufacter", "errors"}, keys...)...)
 }
 
@@ -80,6 +83,32 @@ func ConvertNetmask(in uint8) (string, error) {
 	}
 	return fmt.Sprintf("%d.%d.%d.%d", octets[1], octets[2], octets[3],
 		octets[4]), nil
+}
+
+// IPMaskToString4 converts IPMask to IPv4 string
+func IPMaskToString4(mask net.IPMask) string {
+	var maskBuilder strings.Builder
+	maskBuilder.Grow(16)
+	for i, b := range mask {
+		fmt.Fprintf(&maskBuilder, "%d", b)
+		if i < 3 {
+			maskBuilder.WriteString(".")
+		}
+	}
+	return net.ParseIP(maskBuilder.String()).String()
+}
+
+// IPMaskToString6 converts IPMask to IPv6 string
+func IPMaskToString6(mask net.IPMask) string {
+	var maskBuilder strings.Builder
+	maskBuilder.Grow(41)
+	for i, b := range mask {
+		fmt.Fprintf(&maskBuilder, "%x", b)
+		if i%2 == 1 && i < 15 {
+			maskBuilder.WriteString(":")
+		}
+	}
+	return net.ParseIP(maskBuilder.String()).String()
 }
 
 func GetHostEtc() string {

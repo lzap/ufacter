@@ -1,7 +1,6 @@
 package net
 
 import (
-	"fmt"
 	"net"
 	"regexp"
 	"strings"
@@ -41,7 +40,7 @@ func ReportFacts(facts chan<- ufacter.Fact, volatile bool, extended bool) {
 		bindings := make([]stringMap, 0)
 		bindings6 := make([]stringMap, 0)
 		for _, ipAddr := range v.Addrs {
-			parsed_ip, parsed_net, err := net.ParseCIDR(ipAddr.Addr)
+			parsedIP, parsedNet, err := net.ParseCIDR(ipAddr.Addr)
 			if err != nil {
 				c.LogError(facts, err, "net", "parse CIDR")
 				continue
@@ -50,30 +49,13 @@ func ReportFacts(facts chan<- ufacter.Fact, volatile bool, extended bool) {
 			if extended {
 				b["cidr"] = ipAddr.Addr
 			}
-			b["address"] = parsed_ip.String()
-			b["network"] = parsed_net.IP.String()
-			var maskBuilder strings.Builder
-			if ip4 := parsed_ip.To4(); ip4 != nil {
-				// IPv4
-				maskBuilder.Grow(16)
-				for i, b := range parsed_net.Mask {
-					fmt.Fprintf(&maskBuilder, "%d", b)
-					if i < 3 {
-						maskBuilder.WriteString(".")
-					}
-				}
-				b["netmask"] = net.ParseIP(maskBuilder.String()).String()
+			b["address"] = parsedIP.String()
+			b["network"] = parsedNet.IP.String()
+			if ip4 := parsedIP.To4(); ip4 != nil {
+				b["netmask"] = c.IPMaskToString4(parsedNet.Mask)
 				bindings = append(bindings, b)
 			} else {
-				// IPv6
-				maskBuilder.Grow(41)
-				for i, b := range parsed_net.Mask {
-					fmt.Fprintf(&maskBuilder, "%x", b)
-					if i%2 == 1 && i < 15 {
-						maskBuilder.WriteString(":")
-					}
-				}
-				b["netmask"] = net.ParseIP(maskBuilder.String()).String()
+				b["netmask"] = c.IPMaskToString6(parsedNet.Mask)
 				bindings6 = append(bindings6, b)
 			}
 			if len(bindings) > 0 {

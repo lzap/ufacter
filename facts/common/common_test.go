@@ -13,6 +13,12 @@ type netmaskTPair struct {
 	err error
 }
 
+type netmaskBPair struct {
+	in  []byte
+	out string
+	err error
+}
+
 type byteTPair struct {
 	in      uint64
 	inUnit  string
@@ -102,6 +108,34 @@ func TestConvertNetmask(t *testing.T) {
 			// probably not safe to continue
 			continue
 		}
+		if out != pair.out {
+			t.Fatalf("%v != %v", out, pair.out)
+		}
+	}
+}
+func TestIPMaskToString4(t *testing.T) {
+	testpairs := []netmaskBPair{
+		{[]byte{255, 0, 0, 0}, "255.0.0.0", nil},
+		{[]byte{255, 255, 0, 0}, "255.255.0.0", nil},
+		{[]byte{255, 255, 255, 0}, "255.255.255.0", nil},
+		{[]byte{255, 255, 42, 0}, "255.255.42.0", nil},
+	}
+	for _, pair := range testpairs {
+		out := IPMaskToString4(pair.in)
+		if out != pair.out {
+			t.Fatalf("%v != %v", out, pair.out)
+		}
+	}
+}
+
+func TestIPMaskToString6(t *testing.T) {
+	testpairs := []netmaskBPair{
+		{[]byte{255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, "ff0::", nil},
+		{[]byte{255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, "ffff::", nil},
+		{[]byte{255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, "ffff:ff0::", nil},
+	}
+	for _, pair := range testpairs {
+		out := IPMaskToString6(pair.in)
 		if out != pair.out {
 			t.Fatalf("%v != %v", out, pair.out)
 		}
