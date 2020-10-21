@@ -20,11 +20,12 @@ Facter version is reported in `facterversion` as `3.0.0`, there's also additiona
 
 ## Differences and limitations
 
-There are some facts missing at the moment which are made on purpose:
+There are some differences from Facter:
 
-* Fact tree `identity` (uid/gid etc).
-* Ruby version (not relevant).
-* Processor speed is reported correctly (maximum GHz) while Facter reports _current_ speed in `processors.speed`.
+* Processor speed is reported correctly (maximum GHz) while Facter reports _current_ speed in `processors.speed` (I reported this as a bug in Facter).
+* Reports only mounted partitions (disks are reported correctly however).
+* Fact tree `identity` (uid/gid etc) not reported.
+* Ruby version not reported (not relevant).
 
 ## Additional facts
 
@@ -248,7 +249,6 @@ Planned facts and features:
 * Some names (e.g. OS distribution names) are be reported differently (see https://github.com/shirou/gopsutil/blob/master/host/host_linux.go).
 * Operating system major, minor and LSB info (full name, description) are missing.
 * Fact caching (`-check-new-facts` option returns 1 if there are modified/new facts) for cronjobs to only send updates when necessary
-* Some units contain decimal part ("123.00 bytes" instead of "123 bytes").
 * Output in shell mode (`FACT_NAME="fact value"`) so shell-based TUI could take advantage of this.
 * Implement https://github.com/safchain/ethtool facts: link, speed, duplex, port, autoneg, wol (Linux only)
 * FIPS and SELinux modes.

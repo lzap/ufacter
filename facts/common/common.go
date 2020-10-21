@@ -43,6 +43,23 @@ func ConvertBytes(in uint64) (float64, string, error) {
 	return out, ByteUnits[idx], nil
 }
 
+// ConvertBytesAsString converts bytes to the highest possible unit and returns a string
+// with two digits and unit
+func ConvertBytesAsString(in uint64) string {
+	out := float64(in)
+	idx := 0
+	maxIdx := len(ByteUnits)
+	for idx < maxIdx && out > 1 {
+		tmp := float64(out) / 1024
+		if tmp < 1 {
+			break
+		}
+		out = tmp
+		idx++
+	}
+	return fmt.Sprintf("%0.2f %s", out, ByteUnits[idx])
+}
+
 // ConvertBytesTo converts bytes to the specified unit
 func ConvertBytesTo(in uint64, maxUnit string) (float64, string, error) {
 	if maxUnit == "" {

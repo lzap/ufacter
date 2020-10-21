@@ -26,6 +26,11 @@ type byteTPair struct {
 	outUnit string
 }
 
+type byteStringTPair struct {
+	in  uint64
+	out string
+}
+
 var EPSILON float64 = 1
 
 func floatEquals(a, b float64) bool {
@@ -58,6 +63,24 @@ func TestConvertBytes(t *testing.T) {
 		if equality == false {
 			t.Logf("input: %v; %f != %f; diff: %f, %v", pair, out, pair.out,
 				(out - pair.out), equality)
+			t.Fail()
+		}
+	}
+}
+
+func TestConvertBytesAsString(t *testing.T) {
+	testpairs := []byteStringTPair{
+		{0, "0.00 bytes"},
+		{5238784, "5.00 MiB"},
+		{10485760, "10.00 MiB"},
+		{100910080, "96.24 MiB"},
+		{3267260416, "3.04 GiB"},
+		{306816327680, "285.74 GiB"},
+	}
+	for _, pair := range testpairs {
+		out := ConvertBytesAsString(pair.in)
+		if strings.Compare(out, pair.out) != 0 {
+			t.Logf("expected: %v; returned: %v", pair.out, out)
 			t.Fail()
 		}
 	}

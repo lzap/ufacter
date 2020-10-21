@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -113,48 +112,63 @@ func ReportFacts(facts chan<- ufacter.Fact, volatile bool, extended bool) {
 		for _, part := range partitions {
 			usage, err := d.Usage(part.Mountpoint)
 			if err == nil {
-				facts <- ufacter.NewStableFact(part.Device, "mountpoints", part.Mountpoint, "device")
-				facts <- ufacter.NewStableFact(part.Fstype, "mountpoints", part.Mountpoint, "filesystem")
-				facts <- ufacter.NewStableFact(strings.Split(part.Opts, ","), "mountpoints", part.Mountpoint, "options")
-				facts <- ufacter.NewVolatileFact(fmt.Sprintf("%.2f%%", usage.UsedPercent), "mountpoints", part.Mountpoint, "capacity")
-				reportHumanReadable(facts, false, usage.Total, part.Mountpoint, "size_bytes", "size")
-				reportHumanReadable(facts, true, usage.Free, part.Mountpoint, "available_bytes", "available")
-				reportHumanReadable(facts, true, usage.Used, part.Mountpoint, "used_bytes", "used")
+				facts <- ufacter.NewStableFact(part.Device, "partitions", part.Device, "device")
+				facts <- ufacter.NewStableFact(part.Fstype, "partitions", part.Device, "filesystem")
+				facts <- ufacter.NewStableFact(strings.Split(part.Opts, ","), "partitions", part.Device, "options")
+				facts <- ufacter.NewVolatileFact(fmt.Sprintf("%.2f%%", usage.UsedPercent), "partitions", part.Device, "capacity")
+				facts <- ufacter.NewStableFact(usage.Total, "partitions", part.Device, "size_bytes")
+				facts <- ufacter.NewStableFact(c.ConvertBytesAsString(usage.Total), "partitions", part.Device, "size")
+				facts <- ufacter.NewVolatileFact(usage.Free, "partitions", part.Device, "available_bytes")
+				facts <- ufacter.NewVolatileFact(c.ConvertBytesAsString(usage.Free), "partitions", part.Device, "available")
+				facts <- ufacter.NewVolatileFact(usage.Used, "partitions", part.Device, "used_bytes")
+				facts <- ufacter.NewVolatileFact(c.ConvertBytesAsString(usage.Used), "partitions", part.Device, "used")
 			} else {
 				c.LogError(facts, err, "disk", "usage")
 			}
 		}
-
-		blockDevs, err := getBlockDevices(false)
-		if err == nil {
-			sort.Strings(blockDevs)
-			for _, blockDevice := range blockDevs {
-				size, err := getBlockDeviceSize(blockDevice)
-				if err == nil {
-					reportHumanReadable(facts, false, uint64(size), blockDevice, "size_bytes", "size")
-				} else {
-					c.LogError(facts, err, "disk", "block device size")
-				}
-
-				model, err := getBlockDeviceModel(blockDevice)
-				if err == nil {
-					facts <- ufacter.NewStableFact(model, "disks", blockDevice, "model")
-				} else {
-					c.LogError(facts, err, "disk", "block device model")
-				}
-
-				vendor, err := getBlockDeviceVendor(blockDevice)
-				if err == nil {
-					facts <- ufacter.NewStableFact(vendor, "disks", blockDevice, "vendor")
-				} else {
-					c.LogError(facts, err, "disk", "block device vendor")
-				}
-			}
-		} else {
-			c.LogError(facts, err, "disk", "block devices")
-		}
 	} else {
 		c.LogError(facts, err, "disk", "partitions")
+	}
+
+	var sizeTotal uint64
+	blockDevs, err := getBlockDevices(false)
+	if err == nil {
+		for _, blockDevice := range blockDevs {
+			size, err := getBlockDeviceSize(blockDevice)
+			sizeTotal += uint64(size)
+			if err == nil {
+				facts <- ufacter.NewStableFact(size, "disks", blockDevice, "size_bytes")
+				facts <- ufacter.NewStableFact(c.ConvertBytesAsString(uint64(size)), "disks", blockDevice, "size")
+			} else {
+				c.LogError(facts, err, "disk", "block device size")
+			}
+
+			model, err := getBlockDeviceModel(blockDevice)
+			if err == nil {
+				facts <- ufacter.NewStableFact(model, "disks", blockDevice, "model")
+			} else {
+				c.LogError(facts, err, "disk", "block device model")
+			}
+
+			vendor, err := getBlockDeviceVendor(blockDevice)
+			if err == nil {
+				facts <- ufacter.NewStableFact(vendor, "disks", blockDevice, "vendor")
+			} else {
+				c.LogError(facts, err, "disk", "block device vendor")
+			}
+
+			ioc, err := d.IOCounters(blockDevice)
+			if err == nil {
+				facts <- ufacter.NewStableFact(ioc[blockDevice].Label, "disks", blockDevice, "label")
+				facts <- ufacter.NewStableFact(ioc[blockDevice].SerialNumber, "disks", blockDevice, "serial")
+			} else {
+				c.LogError(facts, err, "disk", "block device iocounters")
+			}
+		}
+		facts <- ufacter.NewStableFactEx(sizeTotal, "disks", "total_size_bytes")
+		facts <- ufacter.NewVolatileFact(c.ConvertBytesAsString(sizeTotal), "disks", "total_size")
+	} else {
+		c.LogError(facts, err, "disk", "block devices")
 	}
 
 	ufacter.SendVolatileFactEx(facts, time.Since(start), "ufacter", "stats", "disk")

@@ -1,3 +1,4 @@
 /facter
 /ufacter
+/ufacter*amd64*
 /custom_facts.yaml
