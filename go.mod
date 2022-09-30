@@ -3,14 +3,17 @@ module github.com/lzap/ufacter
 go 1.13
 
 require (
-	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
-	github.com/go-ole/go-ole v1.2.4 // indirect
+	github.com/StackExchange/wmi v1.2.1 // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/shirou/gopsutil v2.20.9+incompatible
+	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/stretchr/testify v1.5.1 // indirect
+	github.com/tklauser/go-sysconf v0.3.10 // indirect
+	github.com/tklauser/numcpus v0.5.0 // indirect
 	github.com/vishvananda/netlink v1.1.0
-	github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae // indirect
-	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211 // indirect
+	github.com/vishvananda/netns v0.0.0-20220913150850-18c4f4234207 // indirect
+	github.com/yusufpapurcu/wmi v1.2.2 // indirect
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 )
