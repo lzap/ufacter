@@ -15,7 +15,7 @@ import (
 	"github.com/lzap/ufacter/facts/route"
 	fufacter "github.com/lzap/ufacter/facts/ufacter"
 	"github.com/lzap/ufacter/lib/ufacter"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func main() {

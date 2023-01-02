@@ -3,7 +3,7 @@ package ufacter
 import (
 	"fmt"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // YAMLFormatter prints-out facts in YAML format
